@@ -1,9 +1,17 @@
 # Orbital Mechanics Toolkit
 
+**One-line description + a hero image (your best porkchop or trajectory plot) right at the top, before any text**
+**What this does — 2-3 sentences, plain language: Lambert solver, propagator, porkchop trade studies, (eventually) attitude/proximity ops**
+**Demo section — for each major capability, a subheading with: 1-2 sentence explanation of the method (e.g. "solves the two-body boundary value problem using a universal-variable formulation") + the resulting plot image + a tiny code snippet showing the API**
+**Installation — pip install -e . style, minimal**
+**Validation — a short note like "Lambert solver validated against Vallado's worked examples" if you do this; very high-credibility signal in aerospace specifically**
+**Roadmap — bullet list: attitude determination (planned), proximity operations (planned) — shows ongoing work, not abandoned project**
+**License**
+
 > A Python library for orbital trajectory design — Lambert problem solving, numerical propagation, porkchop trade studies, and (in progress) attitude determination and proximity operations.
 
 ![Porkchop plot example](docs/images/porkchop_example.png)
-*<Replace with your own generated porkchop plot — Earth–Mars departure/arrival delta-v contours>*
+*<Replace with prettiest porkchop plot — Earth–Mars departure/arrival delta-v contours>*
 
 ---
 
@@ -14,7 +22,8 @@ This toolkit implements core algorithms used in interplanetary mission design:
 - **Lambert's problem solver** — computes the transfer orbit (and required velocity) connecting two position vectors in a given time of flight
 - **Numerical orbit propagator** — integrates the equations of motion to plot spacecraft trajectories over time
 - **Porkchop plot generator** — sweeps departure/arrival date combinations to visualize delta-v cost and identify optimal launch windows
-- **Attitude determination** *(in progress)* — estimates spacecraft orientation from sensor data
+- **Extended Kalmann Filter** *(planned)* — combines measured state data with projected state date to determine "true" state
+- **Attitude determination** *(planned)* — estimates spacecraft orientation from sensor data
 - **Proximity operations** *(planned)* — relative motion modeling for rendezvous and docking scenarios
 
 ---
@@ -63,7 +72,13 @@ generate_porkchop(departure_range, arrival_range, body1="Earth", body2="Mars")
 
 ---
 
-### Attitude Determination *(in progress)*
+### Extended Kalmann Filter *(planned)*
+
+Brief description once implemented.
+
+---
+
+### Attitude Determination *(planned)*
 
 Brief description once implemented (e.g. TRIAD, QUEST, or Kalman filter approach).
 
