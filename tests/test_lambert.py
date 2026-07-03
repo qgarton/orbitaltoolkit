@@ -7,7 +7,7 @@
 # Next will implement test compared to Hohmann transfer
 
 import time
-import lambert
+import \src/orbitkit/lambert\
 #import test
 
 def main():
