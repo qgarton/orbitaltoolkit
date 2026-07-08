@@ -1,11 +1,11 @@
 ### lambert.py
 # Created 6/2/2026
 # Author Quaid Garton
-# Last updated 7/2/2026
+# Last updated 7/7/2026
 
 # Solves Lamberts problem to calculate a transfer orbit between two points given a time of flight
 ## Assumptions: 
-# Less than one revolution along an elliptical orbit, two body orbit, no significant perturbations, impulse burns
+# Less than one half revolution along an elliptical orbit, two body orbit, no significant perturbations, impulse burns
 
 import numpy as np 
 from scipy.optimize import fsolve
@@ -58,8 +58,10 @@ def lambert(initial_state, final_state, TOF, mu):
     R2 = np.linalg.norm(r2) # [km] magnitude of final position vector
     v2 = np.array(final_state[3:6]) # [km/s] final velocity vector
     
-    dtheta = np.arccos(np.dot(r1, r2) / (R1 * R2)) # [rad] change in true anomaly
-    
+    ratio = np.dot(r1, r2) / (R1 * R2)
+    ratio = np.clip(ratio, -1.0, 1.0)  # Clamp to valid range in case of numerical errors (e.g., due to floating-point precision)
+    dtheta = np.arccos(ratio) # [rad] change in true anomaly
+        
     #### Used for specific case where we want shorter path to be used, Might want to change eventually to allow for longer path usage
     if dtheta > np.pi: # [rad] if the change in true anomaly is greater than 180 degrees, use the shorter path
         dtheta = 2 * np.pi - dtheta
@@ -134,14 +136,15 @@ def lambert(initial_state, final_state, TOF, mu):
     f = (r2pqw[0] * v1pqw[1] - r2pqw[1] * v1pqw[0]) / h 
     g = (r1pqw[0] * r2pqw[1] - r1pqw[1] * r2pqw[0]) / h
     fdot = (v2pqw[0] * v1pqw[1] - v2pqw[1] * v1pqw[0]) / h
-    gdot = (r1pqw[0] * v2pqw[1] - r1pqw[1] * v2pqw[0]) / h
+    gdot = (r1pqw[0] * v2pqw[1] - r1pqw[1] * v2pqw[0]) / h  
+
     # Convert velocity from perifocal frame to inertial frame
     v1_transfer_XYZ = (r2 - f * r1) / g # [km/s] transfer orbit velocity at initial position
     v2_transfer_XYZ = fdot * r1 + gdot * v1_transfer_XYZ # [km/s] transfer orbit velocity at final position
 
     # Calculate deltaV required for transfer and return tranfer orbit info
-    state1_transfer = [r1, v1_transfer_XYZ]
-    state2_transfer = [r2, v2_transfer_XYZ]
+    state1_transfer = np.concatenate((r1, v1_transfer_XYZ))
+    state2_transfer = np.concatenate((r2, v2_transfer_XYZ))
     dv1 = np.linalg.norm(v1_transfer_XYZ - v1)
     dv2 = np.linalg.norm(v2 - v2_transfer_XYZ)
     dV = dv1 + dv2
