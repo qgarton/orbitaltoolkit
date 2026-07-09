@@ -7,6 +7,7 @@
 # Next will implement test compared to Hohmann transfer
 
 import time
+import sys
 # import main function lambert() from lambert.py
 from orbitkit.lambert import lambert
 
@@ -98,10 +99,27 @@ def test_lambert_edge_case4(): # Test unit hardcodes
 if __name__ == '__main__':
   # Track runtime
   start_time = time.perf_counter()
-  test_lambert()
-  test_lambert_edge_case2()
-  test_lambert_edge_case3()
-  test_lambert_edge_case4()
+  
+  # Map numbers to their corresponding functions
+  functions = {
+      "1": test_lambert,
+      "2": test_lambert_edge_case2,
+      "3": test_lambert_edge_case3,
+      "4": test_lambert_edge_case4
+  }
+  # If an argument is provided, validate and run that specific function
+  if len(sys.argv) > 1:
+      choice = sys.argv[1]
+      if choice in functions:
+          functions[choice]()
+      else:
+          print(f"Error: Invalid choice '{choice}'. Choose 1, 2, 3, or 4.")
+          sys.exit(1)
+  # If no arguments are provided, run all functions sequentially
+  else:
+      for func in functions.values():
+          func()
+
   # Calc and print execution time
   end_time = time.perf_counter()
   execution_time = end_time - start_time
