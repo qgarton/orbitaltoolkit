@@ -3,9 +3,9 @@
 # Author Quaid Garton
 # Last updated 7/7/2026
 
-# Solves Lamberts problem to calculate a transfer orbit between two points given a time of flight
+# Uses Lamberts theorem to solve Lamberts problem to calculate a transfer orbit between two points given a time of flight
 ## Assumptions: 
-# Less than one half revolution along an elliptical orbit, two body orbit, no significant perturbations, impulse burns
+# Less than one revolution along an elliptical orbit, two body orbit, no significant perturbations, impulse burns
 
 import numpy as np 
 from scipy.optimize import fsolve
@@ -21,7 +21,7 @@ def lambertEq(TOF, c, s, mu, dtheta):
 
     TOFmin = 1 / nmin * ((alpha_min - beta_min) - (np.sin(alpha_min) - np.sin(beta_min))) # [s] minimum time of flight for the transfer orbit
 
-    if dtheta < np.pi: #### Currently always true since we are using the shorter path, but could be changed in the future
+    if dtheta < np.pi:
         if TOF < TOFmin:
             def f(x):
                 return (1 / np.sqrt(mu / x**3) * ((2 * np.arcsin(np.sqrt(s / (2 * x))) - 2 * np.arcsin(np.sqrt((s - c) / (2 * x)))) - 
@@ -62,10 +62,8 @@ def lambert(initial_state, final_state, TOF, mu):
     ratio = np.clip(ratio, -1.0, 1.0)  # Clamp to valid range in case of numerical errors (e.g., due to floating-point precision)
     dtheta = np.arccos(ratio) # [rad] change in true anomaly
         
-    #### Used for specific case where we want shorter path to be used, Might want to change eventually to allow for longer path usage
-    if dtheta > np.pi: # [rad] if the change in true anomaly is greater than 180 degrees, use the shorter path
+    if np.cross(r1, r2)[2] < 0: # [rad] if the cross product of the two position vectors is negative, the transfer angle is greater than 180 degrees
         dtheta = 2 * np.pi - dtheta
-    ####
 
     c = np.sqrt(R1**2 + R2**2 - 2 * R1 * R2 * np.cos(dtheta)) # [km] chord length between initial and final position vectors
     s = (R1 + R2 + c) / 2 # [km] semi-perimeter of the triangle formed by the initial and final position vectors and the chord length
