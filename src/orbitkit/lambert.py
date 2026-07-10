@@ -83,10 +83,11 @@ def lambert(initial_state, final_state, TOF, mu):
         alpha = 2 * np.pi - alpha
         beta = -beta
 
-    ## Ensure that the time of flight check is within a reasonable tolerance
+    ## Ensure that the time of flight check is within a reasonable relative tolerance
     TOFCHECK = TOF - 1 / n * ((alpha - beta) - (np.sin(alpha) - np.sin(beta)))
-    if abs(TOFCHECK) > 1e-6:
-        print("Warning: Time of flight check failed.\n   TOF = ", TOF, "\n   TOF Error = ", TOFCHECK, " seconds")
+    relative_tol = abs(TOFCHECK)/TOF - 1
+    if relative_tol > 1e-6:
+        print("Warning: Time of flight check failed.\n   TOF = ", TOF, "\n   Relative Error = ", relative_tol)
 
     p = 4 * a * (s - R1) * (s - R2) / c**2 * (np.sin((alpha + beta) / 2))**2 # [km] semi-latus rectum of the transfer orbit
     e = np.sqrt(1 - p / a) # [unitless] eccentricity of the transfer orbit
