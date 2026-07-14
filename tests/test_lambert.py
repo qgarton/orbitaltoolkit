@@ -22,7 +22,7 @@ def test_lambert(): # Basic <180° transfer angle
   final_state = [-1.021116e8, 3.32397e7, 6.34862e6, -11.00778, -33.46124, 0.17587]
   time_of_flight = (2459621.5 - 2459501.5) *24 *3600 # [seconds]
   muSun = 1.32712428e11 #[km^3/s^2]
-  (state1_transfer, state2_transfer, dv1_1, dv2_1, dV) = lambert(initial_state, final_state, time_of_flight, muSun)
+  (state1_transfer, state2_transfer, dv1_1, dv2_1, dV, _) = lambert(initial_state, final_state, time_of_flight, muSun)
   print('\nTest 1 — Earth to Venus (heliocentric, km/s)')
   print(f'\ndv1, dv2 = {dv1_1:.4f}, {dv2_1:.4f}')
   print('Should be  3.8934, 5.1598')
@@ -42,7 +42,7 @@ def test_lambert_edge_case2(): # Basic <180° transfer angle
   final_state   = [-14600, 2500, 7000, 0,0,0] # -3.31246031, -6.19661731, -0.38528762] # AI generated to make dv=2.0
   time_of_flight = 3600.0
   mu_earth = 398600.0
-  (state1_transfer, state2_transfer, dv1_2, dv2_2, dV) = lambert(initial_state, final_state, time_of_flight, mu_earth)
+  (state1_transfer, state2_transfer, dv1_2, dv2_2, dV, _) = lambert(initial_state, final_state, time_of_flight, mu_earth)
   print('\nTest 2 — Curtis-geometry, Earth-centered, short-way (<180°) transfer')
   print(f'\ndv1, dv2 = {dv1_2:.4f}, {dv2_2:.4f}')
   print(f'Should be  7.0817, 5.3603')
@@ -62,7 +62,7 @@ def test_lambert_edge_case3(): # Test >180° transfer angle
   final_state   = [-6936.4926741, -19057.8569923, 0.0, 4.39763084, -0.19664843, 0.0]
   time_of_flight = 21433.248160924064
   mu_earth = 398600.0
-  (state1_transfer, state2_transfer, dv1_3, dv2_3, dV) = lambert(initial_state, final_state, time_of_flight, mu_earth)
+  (state1_transfer, state2_transfer, dv1_3, dv2_3, dV, _) = lambert(initial_state, final_state, time_of_flight, mu_earth)
   print('\nTest 3 — Earth-centered, LONG-WAY (>180°) transfer angle')
   print(f'\ndv1, dv2 = {dv1_3:.4f}, {dv2_3:.4f}')
   print('Should be  0, 0')
@@ -86,7 +86,7 @@ def test_lambert_edge_case4(): # Test unit hardcodes
   mu_sun_au = 39.47692641
   v1_transfer = [-9.303608, 3.01862016, 1.53636008] #AU/yr
   v2_transfer = [-9.511186, 1.88884006, 1.42137810] #AU/yr
-  (state1_transfer, state2_transfer, dv1_4, dv2_4, dV) = lambert(initial_state, final_state, time_of_flight, mu_sun_au)
+  (state1_transfer, state2_transfer, dv1_4, dv2_4, dV, _) = lambert(initial_state, final_state, time_of_flight, mu_sun_au)
   print('\nTest 4 — Battin-geometry, AU/year units (not km/s!)')
   print(f'\ndv1, dv2 = {dv1_4:.4f}, {dv2_4:.4f}')
   print(f'Should be  9.9010, 9.8005')

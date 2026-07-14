@@ -87,7 +87,15 @@ def lambert(initial_state, final_state, TOF, mu):
     TOFCHECK = TOF - 1 / n * ((alpha - beta) - (np.sin(alpha) - np.sin(beta)))
     relative_tol = abs(TOFCHECK)/TOF - 1
     if relative_tol > 1e-6:
-        print("Warning: Time of flight check failed.\n   TOF = ", TOF, "\n   Relative Error = ", relative_tol)
+        print("Warning: Time of flight check failed.\n   TOF = ", TOF, "\n   Relative Error = ", relative_tol, "\n   TOF error (s) = ", TOF)
+
+    ### Avoids theta ~= 180 since g function is calculated incorrectly there
+    DTHETA_TOL = np.radians(.9) # barely <2e-2 radians
+    if dtheta < DTHETA_TOL or abs(np.pi - dtheta) < DTHETA_TOL:
+        raise ValueError(
+            f"Transfer angle too close to 0 or 180 deg (dtheta={np.degrees(dtheta):.6f} deg); "
+            "orbital plane is degenerate/ill-conditioned for this r1, r2 pair."
+        )
 
     p = 4 * a * (s - R1) * (s - R2) / c**2 * (np.sin((alpha + beta) / 2))**2 # [km] semi-latus rectum of the transfer orbit
     e = np.sqrt(1 - p / a) # [unitless] eccentricity of the transfer orbit
@@ -148,7 +156,7 @@ def lambert(initial_state, final_state, TOF, mu):
     dv2 = np.linalg.norm(v2 - v2_transfer_XYZ)
     dV = dv1 + dv2
 
-    return state1_transfer, state2_transfer, dv1, dv2, dV
+    return state1_transfer, state2_transfer, dv1, dv2, dV, relative_tol
 
 if __name__ == '__main__':
   print("\nlambert.py is a library module. Run 'python3 test_lambert.py' to test.\n" \

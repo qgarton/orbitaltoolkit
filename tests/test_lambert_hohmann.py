@@ -27,18 +27,17 @@ def test_lambert_hohmann():
     dv1_expected = velocity_transfer_perigee - LEO_velocity # [km/s] expected deltaV at perigee
     dv2_expected = GEO_velocity - velocity_transfer_apogee # [km/s] expected
 
-    (state1_transfer, state2_transfer, dv1, dv2, dV) = lambert(initial_state, final_state, time_of_flight, muEarth)
-    
-    '''debugging prints (add one more ' to uncomment)''
-    # Set print options globally to 4 significant digits
-    set_printoptions(precision=4, suppress=True)
-    print(f'\nstate1_transfer = {state1_transfer}')
-    print(f'should be.      = {LEO}, 0, 0, 0, {velocity_transfer_perigee:.4f}, 0')
-    print(f'state2_transfer = {state2_transfer}')
-    print(f'should be       = {-GEO}, 0, 0, 0, {-velocity_transfer_apogee:.4f}, 0')
-    print(f'\ndv1, dv2 = {dv1:.4f}, {dv2:.4f}')
-    print(f'Should be: {dv1_expected:.4f} km/s, {dv2_expected:.4f} km/s')
-    #'''
+    (state1_transfer, state2_transfer, dv1, dv2, dV, _) = lambert(initial_state, final_state, time_of_flight, muEarth)
+  
+    # # Set print options globally to 4 significant digits
+    # set_printoptions(precision=4, suppress=True)
+    # print(f'\nstate1_transfer = {state1_transfer}')
+    # print(f'should be.      = {LEO}, 0, 0, 0, {velocity_transfer_perigee:.4f}, 0')
+    # print(f'state2_transfer = {state2_transfer}')
+    # print(f'should be       = {-GEO}, 0, 0, 0, {-velocity_transfer_apogee:.4f}, 0')
+    # print(f'\ndv1, dv2 = {dv1:.4f}, {dv2:.4f}')
+    # print(f'Should be: {dv1_expected:.4f} km/s, {dv2_expected:.4f} km/s')
+
 
     if __name__ != '__main__':
         assert abs(dv1 - dv1_expected) < 0.1
