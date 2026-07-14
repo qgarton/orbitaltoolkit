@@ -1,5 +1,11 @@
 # Orbital Mechanics Toolkit
 
+
+> A Python library for orbital trajectory design — Lambert problem solving, numerical propagation, porkchop trade studies, and (in progress) attitude determination and proximity operations.
+
+![Porkchop plot example](docs/images/Earth-Mars_dV_Total.png)
+*<Replace with prettiest porkchop plot — Earth–Mars departure/arrival delta-v contours>*
+
 **One-line description + a hero image (your best porkchop or trajectory plot) right at the top, before any text**
 **What this does — 2-3 sentences, plain language: Lambert solver, propagator, porkchop trade studies, (eventually) attitude/proximity ops**
 **Demo section — for each major capability, a subheading with: 1-2 sentence explanation of the method (e.g. "solves the two-body boundary value problem using a universal-variable formulation") + the resulting plot image + a tiny code snippet showing the API**
@@ -7,12 +13,6 @@
 **Validation — a short note like "Lambert solver validated against Vallado's worked examples" if you do this; very high-credibility signal in aerospace specifically**
 **Roadmap — bullet list: attitude determination (planned), proximity operations (planned) — shows ongoing work, not abandoned project**
 **License**
-
-> A Python library for orbital trajectory design — Lambert problem solving, numerical propagation, porkchop trade studies, and (in progress) attitude determination and proximity operations.
-
-![Porkchop plot example](docs/images/porkchop_example.png)
-*<Replace with prettiest porkchop plot — Earth–Mars departure/arrival delta-v contours>*
-
 ---
 
 ## What this does

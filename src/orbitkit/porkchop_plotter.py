@@ -94,12 +94,14 @@ def plot_porkchops(initial, final, dV1, dV2):
     plt.colorbar()
 
     ### Fig 3 total dV
+    dV_tot = dV1 + dV2
+    min_dV = dV_tot.min()
     plt.figure()
-    cp = plt.contour(initial.jd - initial.jd[0], final.jd - initial.jd[0], dV1 + dV2, levels=levels)
+    cp = plt.contour(initial.jd - initial.jd[0], final.jd - initial.jd[0], dV_tot, levels=levels)
     plt.clabel(cp, inline=True, fontsize=10, fmt='%1.1f') # labels contours
     plt.xlabel("Earth Departure date (June 20 - Sep 20 2005)")
     plt.ylabel("Mars Arrival date (Dec 1 - June 19 2005/6)")
-    plt.title(r"Total $\Delta V$ Required [Day 0 = June 20]")
+    plt.title(r"Total $\Delta V$ Required [Day 0 = June 20]" + "\n" + r"Min $\Delta V$: " + f"{min_dV:.4f} km/s")
     plt.colorbar()
 
     plt.show()
