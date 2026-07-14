@@ -4,26 +4,44 @@
 # Last updated: 7/9/2026
 
 # Tests the porkchop_plotter.py function using known values from ASEN 5050 HW
-from pathlib import Path
-from orbitkit.utils import parse_horizons_csv
-from orbitkit.porkchop_plotter import porkchop_plotter
+import numpy as np
+from orbitkit.utils import parse_horizons_csv, Ephemeris
+from orbitkit.porkchop_plotter import porkchop_grid_calculation, plot_porkchops
 from orbitkit.lambert import lambert
 
 def test_porkchop_plotter():
+    ## Tests plotter with fabricated data. currently contains missing portions due to 180 deg failure
     muSun = 1.32712428e11  # [km^3/s^2]
-    script_dir = Path(__file__).resolve().parent   # orbitaltoolkit/tests/
-    data_path_earth = script_dir.parent / "docs" / "examples" / "HW6_Ephem_Earth.txt"  # ..orbitaltoolkit/docs/test/ephem_test.txt
-    data_path_mars = script_dir.parent / "docs" / "examples" / "HW6_Ephem_Mars.txt"  # ..orbitaltoolkit/docs/test/ephem_test.txt
-    earth_data = parse_horizons_csv(data_path_earth)
-    mars_data = parse_horizons_csv(data_path_mars)
 
-    porkchop_plotter(earth_data, mars_data, muSun, lambert)
+    dep_days = np.arange(-60, 121, 5)
+    arr_days = np.arange(100, 390, 10)
+    earth = make_synthetic_ephemeris(r_AU=1.0, period_days=365.25, phase0_deg=0.0, t_days_array=dep_days)
+    mars  = make_synthetic_ephemeris(r_AU=1.524, period_days=686.98, phase0_deg=45.0, t_days_array=arr_days)
 
+    # expected: grid minimum near dep_days≈0, arr_days≈260, total dV ≈ 5.60 km/s
+    dV1, dV2 = porkchop_grid_calculation(earth, mars, muSun, lambert)
+    if __name__ == '__main__':
+        plot_porkchops(earth, mars, dV1, dV2)
 
     if __name__ != '__main__':
         print("assert somethin")
         # assert 
 
+def make_synthetic_ephemeris(r_AU, period_days, phase0_deg, t_days_array, mu_sun=1.32712428e11):
+    # Gives really nice data to make an expected shape porkchop plot
+    AU = 1.495978707e8  # km
+    r_mag = r_AU * AU
+    n = 2*np.pi / (period_days*86400)
+    v_mag = np.sqrt(mu_sun / r_mag)
+
+    states = np.zeros((len(t_days_array), 6))
+    for i, td in enumerate(t_days_array):
+        theta = np.radians(phase0_deg) + n*(td*86400)
+        states[i, 0:3] = [r_mag*np.cos(theta), r_mag*np.sin(theta), 0.0]
+        states[i, 3:6] = v_mag*np.array([-np.sin(theta), np.cos(theta), 0.0])
+
+    dates = [f"synthetic day {td}" for td in t_days_array]
+    return Ephemeris(jd=np.array(t_days_array, dtype=float), dates=dates, states=states)
 
 if __name__ == '__main__':
     test_porkchop_plotter()
