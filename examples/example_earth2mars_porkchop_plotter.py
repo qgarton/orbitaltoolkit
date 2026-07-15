@@ -5,7 +5,7 @@
 
 # Tests the porkchop_plotter.py function using known values from ASEN 5050 HW
 from pathlib import Path
-from orbitkit.utils import parse_horizons_csv
+from orbitkit.ephem_io import parse_horizons_csv
 from orbitkit.porkchop_plotter import porkchop_grid_calculation, plot_porkchops
 from orbitkit.lambert import lambert
 

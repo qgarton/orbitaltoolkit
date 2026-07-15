@@ -23,7 +23,6 @@ def porkchop_grid_calculation(initial, final, mu, lambert_fn):
     count = 0
     dV1 = np.zeros((len(final.jd), len(initial.jd)))
     dV2 = np.zeros((len(final.jd), len(initial.jd)))
-    print(type(initial.states), getattr(initial.states, 'shape', 'NO SHAPE ATTR'))
 
     TOL = 1e-6
     for j in range(len(final.jd)):
@@ -31,7 +30,7 @@ def porkchop_grid_calculation(initial, final, mu, lambert_fn):
             if initial.jd[i] < final.jd[j]:
                 TOF = (final.jd[j] - initial.jd[i]) * 24 * 3600
                 try:
-                    _, _, dv1, dv2, _, relative_tol = lambert_fn(initial.states[i, :], final.states[j, :], TOF, mu)
+                    _, _, dv1, dv2, _, relative_tol = lambert_fn(np.append(initial.pos[i, :], initial.vel[i,:]), np.append(final.pos[j, :], final.vel[j,:]), TOF, mu)
                     # Avoids incorrectly calculated dVs
                     if relative_tol > TOL:
                         dV1[j, i] = np.nan

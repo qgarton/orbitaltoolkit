@@ -5,7 +5,7 @@
 
 # Tests the porkchop_plotter.py function using known values from ASEN 5050 HW
 import numpy as np
-from orbitkit.utils import parse_horizons_csv, Ephemeris
+from orbitkit.ephem_io import Ephemeris
 from orbitkit.porkchop_plotter import porkchop_grid_calculation, plot_porkchops
 from orbitkit.lambert import lambert
 
@@ -34,14 +34,15 @@ def make_synthetic_ephemeris(r_AU, period_days, phase0_deg, t_days_array, mu_sun
     n = 2*np.pi / (period_days*86400)
     v_mag = np.sqrt(mu_sun / r_mag)
 
-    states = np.zeros((len(t_days_array), 6))
+    pos = np.zeros((len(t_days_array), 3))
+    vel = np.zeros((len(t_days_array), 3))
     for i, td in enumerate(t_days_array):
         theta = np.radians(phase0_deg) + n*(td*86400)
-        states[i, 0:3] = [r_mag*np.cos(theta), r_mag*np.sin(theta), 0.0]
-        states[i, 3:6] = v_mag*np.array([-np.sin(theta), np.cos(theta), 0.0])
+        pos[i, :] = [r_mag*np.cos(theta), r_mag*np.sin(theta), 0.0]
+        vel[i, :] = v_mag*np.array([-np.sin(theta), np.cos(theta), 0.0])
 
-    dates = [f"synthetic day {td}" for td in t_days_array]
-    return Ephemeris(jd=np.array(t_days_array, dtype=float), dates=dates, states=states)
+    date = [f"synthetic day {td}" for td in t_days_array]
+    return Ephemeris(jd=np.array(t_days_array, dtype=float), date=date, pos=pos, vel=vel)
 
 if __name__ == '__main__':
     test_porkchop_plotter()
