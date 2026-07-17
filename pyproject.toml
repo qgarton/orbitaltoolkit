@@ -16,11 +16,14 @@ dependencies = [
     "numpy",
     "scipy",
     "matplotlib",
+    "plotly",
+    "requests",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "ipykernel",
 ]
 
 [tool.setuptools.packages.find]
