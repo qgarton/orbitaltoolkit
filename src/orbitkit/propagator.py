@@ -13,28 +13,36 @@ from scipy.integrate import solve_ivp
 from orbitkit.constants import G
 
 
-def propagate(orbital_bodies, tspan, t_eval, method='RK45', rtol=1e-9, atol=1e-12, dense_output=False):
+def propagate(orbital_bodies, tspan, t_eval=None, method='RK45', rtol=1e-9, atol=1e-12, show_progress=False, dense_output=False):
     # Initialize state and tspan
+    if t_eval is None:
+        t_eval = np.linspace(tspan[0], tspan[1], 1000)
     body_names = list(orbital_bodies.keys()) # Creates list of names in order
     y0 = np.concatenate([np.concatenate((orbital_bodies[name]['pos'], orbital_bodies[name]['vel'])) 
           for name in body_names])
     masses = np.array([orbital_bodies[name]['mass'] for name in body_names])
 
+    if show_progress:
+        EOMfun = make_eom_with_progress(masses, tspan, report_every=0.1)  # report every 10%
+        eom_args = None
+    else:
+        EOMfun = EOM
+        eom_args = (masses,)
     # Call EOM with solve_ivp
     sol = solve_ivp(
-    fun=EOM,                    # your derivative function: EOM(t, y) -> dy/dt
+    fun=EOMfun,                    # your derivative function: EOM(t, y) -> dy/dt
     t_span=(tspan[0], tspan[1]),            # start and end time
     y0=y0,                      # flat array: [x1,y1,z1,vx1,vy1,vz1, x2,y2,z2,...]
     method=method,              # integration scheme default 'RK45'
     t_eval=t_eval,              # optional: specific times to report output at
-    args=(masses,),              # extra args passed to EOM after (t, y)
+    args=eom_args,              # extra args passed to EOM after (t, y)
     rtol=rtol, atol=atol,       # error tolerances — this is what actually controls accuracy
     dense_output=dense_output,  # if True, gives a continuous interpolant you can call like sol.sol(t)
     )
     
     for i, body in enumerate(body_names):
-        orbital_bodies[body].update({'prop_pos' : sol.y[6*i:6*i+3, :]})
-        orbital_bodies[body].update({'prop_vel' : sol.y[6*i+3:6*i+6, :]})
+        orbital_bodies[body].update({'prop_pos' : sol.y[6*i:6*i+3, :]})     # Type/size: 'numpy.ndarray' (3,n_days+1)
+        orbital_bodies[body].update({'prop_vel' : sol.y[6*i+3:6*i+6, :]})   # Type/size: 'numpy.ndarray' (3,n_days+1)
 
     return orbital_bodies
     
@@ -53,6 +61,21 @@ def EOM(t,y,masses):
             acc += G * masses[j] / (r_mag**2) * (r_vec/r_mag) # Acceleration vector from i to j
         dydt[6*i:6*i+6] = np.concatenate((y[6*i+3:6*i+6], acc))
     return dydt
+
+def make_eom_with_progress(masses, tspan, report_every=0.1):
+    """EOM used to report progress on integration, default every 10%"""
+    t0, tf = tspan
+    last_milestone = [-1]  # mutable container so the inner function can update it (closures can't reassign an int)
+
+    def eom_with_progress(t, y):
+        frac = (t - t0) / (tf - t0)
+        milestone = int(frac / report_every)
+        if milestone > last_milestone[0]:
+            last_milestone[0] = milestone
+            print(f"  progress: {frac * 100:5.1f}%  (t = {t:.3e} s)")
+        return EOM(t, y, masses)
+
+    return eom_with_progress
 
 
 
