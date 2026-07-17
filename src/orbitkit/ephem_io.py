@@ -32,7 +32,7 @@ def parse_horizons_csv(filepath):
         lines = f.readlines()[3:]
     jd = np.array([float(line.split(',')[0]) for line in lines])
     date = [line.split(',')[1][1:17] for line in lines] # [1:17] Removes 00:00:00... from date
-    return Ephemeris(jd=jd, date=date, pos=pos, vel=vel)
+    return Ephemeris(jd=np.array(jd), date=date, pos=np.array(pos), vel=np.array(vel))
 
 def parse_horizons_vectors(filepath):
 # Input Filename/path from JPL Horizons vector format, returns clean dataclass
@@ -76,7 +76,7 @@ def parse_horizons_vectors(filepath):
                     continue
                 # LT/RG/RR line intentionally not captured    
 
-    return Ephemeris(jd=jd, date=date, pos=pos, vel=vel)
+    return Ephemeris(jd=np.array(jd), date=date, pos=np.array(pos), vel=np.array(vel))
 
 
 if __name__ == '__main__':
