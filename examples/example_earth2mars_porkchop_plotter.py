@@ -16,15 +16,14 @@ def earth2mars_porckchop_plotter():
     ## Source: From ASEN 5050 HW6 problem 2, CU Boulder, Fall 2021
     # Comparable to previously created porkchop plots from MATLAB
     # ============================================================
-    script_dir = Path(__file__).resolve().parent   # orbitaltoolkit/tests/
-    data_path_earth = script_dir.parent / "docs" / "examples" / "HW6_Ephem_Earth.txt"  # ..orbitaltoolkit/docs/test/ephem_test.txt
-    data_path_mars = script_dir.parent / "docs" / "examples" / "HW6_Ephem_Mars.txt"  # ..orbitaltoolkit/docs/test/ephem_test.txt
+    script_dir = Path(__file__).resolve().parent   # orbitaltoolkit/
+    data_path_earth = script_dir.parent / "docs" / "examples" / "HW6_Ephem_Earth.txt"  # ..orbitaltoolkit/docs/examples/ephem_test.txt
+    data_path_mars = script_dir.parent / "docs" / "examples" / "HW6_Ephem_Mars.txt"  # ..orbitaltoolkit/docs/examples/ephem_test.txt
     earth_data = parse_horizons_csv(data_path_earth)
     mars_data = parse_horizons_csv(data_path_mars)
 
     dV1, dV2 = porkchop_grid_calculation(earth_data, mars_data, muSun, lambert)
-    if __name__ == '__main__':
-        plot_porkchops(earth_data, mars_data, dV1, dV2)
+    plot_porkchops(earth_data, mars_data, dV1, dV2)
 
 if __name__ == '__main__':
     earth2mars_porckchop_plotter()

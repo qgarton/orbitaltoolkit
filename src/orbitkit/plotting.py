@@ -12,7 +12,7 @@ plot_plotly(orbital_bodies, orbital_bodies_truth_comparison)
 # Plots position overtime of 3D integrated orbital bodies next to horizons data for the same bodies
 
 
-def plot_plotly(orbital_bodies, orbital_bodies_truth_comparison=None, focus_body='Sun', zoom_radius=2.5e8, zoom_height=2e8, animate=False, frame_step=5):
+def plot_plotly(orbital_bodies, orbital_bodies_truth_comparison=None, focus_body='Sun', zoom_radius=2.5e8, zoom_height=None, animate=False, frame_step=5):
     """ Plots a 3D interactive graph in your browser. Can compare/plot a secondary set of data with (some of) the same orbital bodies
     IMPORTANT: orbital_bodies[body]['prop_pos'] shape is (3,n) while orbital_bodies_truth_comparison.pos from parse_horizons_vectors() is shape (n,3)"""
     import plotly.graph_objects as go
@@ -46,6 +46,8 @@ def plot_plotly(orbital_bodies, orbital_bodies_truth_comparison=None, focus_body
     
     ### Make graph start out centered on the Sun
     focus_body_final = orbital_bodies[focus_body]['prop_pos'][:, -1]
+    if not zoom_height:
+        zoom_height=zoom_radius
     fig.update_layout(scene=dict(
         xaxis=dict(range=[focus_body_final[0]-zoom_radius, focus_body_final[0]+zoom_radius], title='X (km)'),
         yaxis=dict(range=[focus_body_final[1]-zoom_radius, focus_body_final[1]+zoom_radius], title='Y (km)'),
