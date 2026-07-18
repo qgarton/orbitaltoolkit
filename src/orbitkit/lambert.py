@@ -3,6 +3,10 @@
 # Author Quaid Garton
 # Last updated 7/7/2026
 
+#### FUTURE EDITS:
+### Change inputs to (r1,r2,TOF,mu) and outputs to v1,v2,(relative_tol?), Create new dV Calc fcn or do it outside of here
+### Make mu=muSun a default var, maybe from constants.py
+
 # Uses Lamberts theorem to solve Lamberts problem to calculate a transfer orbit between two points given a time of flight
 ## Assumptions: 
 # Less than one revolution along an elliptical orbit, two body orbit, no significant perturbations, impulse burns
