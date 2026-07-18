@@ -17,28 +17,49 @@ def planet_params():
     ## Units:
     # mass [kg], photosphere radius [km], distance from sun [km], SOI [km]
 
-    def make_body(name, mass, radius, dis_to_orbited_body, orbited_body, mass_orbited_body):
-        """ Returns a Dict with name, mass, mean equatorial radius, distance from orbited body, SOI, and mu
-        Input name as str, mass in kg, radius in km, and distance from orbited body in km """
-        SOI = dis_to_orbited_body * (mass / mass_orbited_body) ** (2/5) if dis_to_orbited_body > 0 else float('nan')
+    def make_body(name, mass, radius, orbited_body, pos, vel):
+        """ Returns a Dict with name, mass, mean equatorial radius, distance from orbited body, mu, 
+        and default pos/vel vectors from 2026-Jan-01
+        Input name as str, mass in kg, radius in km, pos in km, and vel in km/s"""
         mu = G * mass
-        return {'name': name, 'mass': mass, 'radius': radius, 'orbits' : orbited_body, 'dis': dis_to_orbited_body, 'SOI': SOI, 'mu': mu}
+        return {'name': name, 'mass': mass, 'radius': radius, 
+                'orbits' : orbited_body, 'mu': mu, 'pos' : pos, 'vel' : vel}
    
-    Sun     = make_body("Sun"    , 1.9891e30    , 6.95508e5, 0.      , 'none' , 0)
-    Mercury = make_body("Mercury", 3.3022e23    , 2439.7   , 0.387*AU, 'Sun'  , Sun['mass'])
-    Venus   = make_body("Venus"  , 4.869e24     , 6051.8   , 0.723*AU, 'Sun'  , Sun['mass'])
-    Earth   = make_body("Earth"  , 5.9722e24    , 6378.14  , 1.0 * AU, 'Sun'  , Sun['mass'])
-    Moon    = make_body("Moon"   , 7.34767309e22, 1737.1   , 3.844e5 , 'Earth', Earth['mass'])
-    Mars    = make_body("Mars"   , 6.4171e23    , 3396.2   , 1.524*AU, 'Sun'  , Sun['mass'])
-    Jupiter = make_body("Jupiter", 1.89813e27   , 71492    , 5.203*AU, 'Sun'  , Sun['mass'])
-    Saturn  = make_body("Saturn" , 5.683e26     , 60268    , 9.582*AU, 'Sun'  , Sun['mass'])
-    Uranus  = make_body("Uranus" , 8.681e25     , 25559    , 19.19*AU, 'Sun'  , Sun['mass'])
-    Neptune = make_body("Neptune", 1.02409e26   , 24764    , 30.06*AU, 'Sun'  , Sun['mass'])
-    Pluto   = make_body("Pluto"  , 1.309e22     , 1188.3   , 39.48*AU, 'Sun'  , Sun['mass']) # SOI will vary widely during orbit
+    bodies = {
+        'Sun': make_body('Sun', 1.9891e30, 6.95508e5, 'none', 
+            [-458863.96740354, -827774.24699013, 19699.67502418],
+            [0.01242506, 0.00030788, -0.00023528],),
+        'Mercury': make_body('Mercury', 3.3022e23, 2439.7, 'Sun',
+            [-32652520.87416521, -62044362.22997473, -2030280.27755566],
+            [33.31154718, -20.32288539, -4.71526222],),
+        'Venus': make_body('Venus', 4.869e24, 6051.8, 'Sun',
+            [12836983.3, -108801890.0, -2230859.16],
+            [34.53518141, 4.15643781, -1.93508946],),
+        'Earth': make_body('Earth', 5.9722e24, 6378.14, 'Sun',
+            [-26531002.4, 143946900.0, 10806.8131],
+            [-29.7765061, -5.39596266, 0.00017538362],),
+        'Moon': make_body('Moon', 7.34767309e22, 1737.1, 'Earth',
+            [-26386676.7, 144276295.0, 42559.7895],
+            [-30.7808202, -4.97509745, 0.00576059492],),
+        'Mars': make_body('Mars', 6.4171e23, 3396.2, 'Sun',
+            [50491130.5, -208320322.0, -5577837.78],
+            [24.45957742, 7.86147374, -0.43497874],),
+        'Jupiter': make_body('Jupiter', 1.89813e27, 71492, 'Sun',
+            [-253878209.0, 736522532.0, 2626625.18],
+            [-12.50761634, -3.63998664, 0.2949114],),
+        'Saturn': make_body('Saturn', 5.683e26, 60268, 'Sun',
+            [1421819200.0, 37729437.3, -57266662.9],
+            [-0.78986517, 9.63422122, -0.13553349],),
+        'Uranus': make_body('Uranus', 8.681e25, 25559, 'Sun',
+            [1477614610.0, 2512418270.0, -9811818.42],
+            [-5.92036548, 3.13495703, 0.0885724],),
+        'Neptune': make_body('Neptune', 1.02409e26, 24764, 'Sun',
+            [4468347030.0, 76804297.0, -104559308.0],
+            [-0.12946043, 5.46595528, -0.11006076],),
+        'Pluto': make_body('Pluto', 1.309e22, 1188.3, 'Sun',
+            [2875995750.0, -4436760750.0, -357147192.0],
+            [4.72460886, 1.76615139, -1.54157477],)}
     
-
-    bodies = {"Sun" : Sun, "Mercury" : Mercury, "Venus" : Venus, "Earth" : Earth, "Moon" : Moon, "Mars" : Mars,
-              "Jupiter" : Jupiter, "Saturn" : Saturn, "Uranus" : Uranus, "Neptune" : Neptune, "Pluto" : Pluto}
     return bodies
 
 if __name__ == '__main__':
