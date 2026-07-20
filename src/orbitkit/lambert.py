@@ -15,6 +15,9 @@ import numpy as np
 from scipy.optimize import fsolve
 
 
+def norm(vec):
+    return np.linalg.norm(vec)
+
 def lambertEq(TOF, c, s, mu, dtheta):
     ## Calculates the semi-major axis of the transfer orbit given the time of flight, 
     # chord length, semi-perimeter, gravitational parameter, and change in true anomaly
@@ -52,15 +55,13 @@ def lambertEq(TOF, c, s, mu, dtheta):
     return a, Scenario
 
 
-def lambert(initial_state, final_state, TOF, mu):
-    ## Calculates the required deltaV to go between two states given 
-    # initial and final position/velocity, time of flight, and gravitational parameter
-    r1 = np.array(initial_state[0:3])  # [km] initial position vector
+def lambert(r1, r2, TOF, mu):
+    ## Calculates the required velocity of the transfer arc to go between two states given 
+    # initial and final position, time of flight, and gravitational parameter
+    r1 = np.array(r1)
+    r2 = np.array(r2)
     R1 = np.linalg.norm(r1) # [km] magnitude of initial position vector
-    v1 = np.array(initial_state[3:6]) # [km/s] initial velocity vector
-    r2 = np.array(final_state[0:3])  # [km] final position vector
     R2 = np.linalg.norm(r2) # [km] magnitude of final position vector
-    v2 = np.array(final_state[3:6]) # [km/s] final velocity vector
     
     ratio = np.dot(r1, r2) / (R1 * R2)
     ratio = np.clip(ratio, -1.0, 1.0)  # Clamp to valid range in case of numerical errors (e.g., due to floating-point precision)
@@ -153,14 +154,7 @@ def lambert(initial_state, final_state, TOF, mu):
     v1_transfer_XYZ = (r2 - f * r1) / g # [km/s] transfer orbit velocity at initial position
     v2_transfer_XYZ = fdot * r1 + gdot * v1_transfer_XYZ # [km/s] transfer orbit velocity at final position
 
-    # Calculate deltaV required for transfer and return tranfer orbit info
-    state1_transfer = np.concatenate((r1, v1_transfer_XYZ))
-    state2_transfer = np.concatenate((r2, v2_transfer_XYZ))
-    dv1 = np.linalg.norm(v1_transfer_XYZ - v1)
-    dv2 = np.linalg.norm(v2 - v2_transfer_XYZ)
-    dV = dv1 + dv2
-
-    return state1_transfer, state2_transfer, dv1, dv2, dV, relative_tol
+    return v1_transfer_XYZ, v2_transfer_XYZ, relative_tol
 
 if __name__ == '__main__':
   print("\nlambert.py is a library module. Run 'python3 test_lambert.py' to test.\n" \

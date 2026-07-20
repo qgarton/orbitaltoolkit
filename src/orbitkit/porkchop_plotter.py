@@ -30,15 +30,15 @@ def porkchop_grid_calculation(initial, final, mu, lambert_fn):
             if initial.jd[i] < final.jd[j]:
                 TOF = (final.jd[j] - initial.jd[i]) * 24 * 3600
                 try:
-                    _, _, dv1, dv2, _, relative_tol = lambert_fn(np.append(initial.pos[i, :], initial.vel[i,:]), np.append(final.pos[j, :], final.vel[j,:]), TOF, mu)
+                    v1_transfer, v2_transfer, relative_tol = lambert_fn(initial.pos[i, :], final.pos[j, :], TOF, mu)
                     # Avoids incorrectly calculated dVs
                     if relative_tol > TOL:
                         dV1[j, i] = np.nan
                         dV2[j, i] = np.nan
                         print("Nan value Assigned")
                     else:
-                        dV1[j, i] = dv1
-                        dV2[j, i] = dv2
+                        dV1[j, i] = np.linalg.norm(v1_transfer - initial.vel[i,:])
+                        dV2[j, i] = np.linalg.norm(final.vel[j,:] - v2_transfer)
                 except Exception:
                     dV1[j, i] = np.nan
                     dV2[j, i] = np.nan
