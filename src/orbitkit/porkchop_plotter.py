@@ -31,7 +31,7 @@ def porkchop_grid_calculation(initial, final, mu, lambert_fn):
                 TOF = (final.jd[j] - initial.jd[i]) * 24 * 3600
                 try:
                     v1_transfer, v2_transfer, relative_tol = lambert_fn(initial.pos[i, :], final.pos[j, :], TOF, mu)
-                    # Avoids incorrectly calculated dVs
+                    ## Avoids incorrectly calculated dVs
                     if relative_tol > TOL:
                         dV1[j, i] = np.nan
                         dV2[j, i] = np.nan
@@ -51,56 +51,54 @@ def porkchop_grid_calculation(initial, final, mu, lambert_fn):
     print(f"Elapsed time for deltaV calculation: {time.time() - start:.2f} seconds")
     return dV1, dV2
 
-def plot_porkchops(initial, final, dV1, dV2):
+def plot_porkchops(initial, final, dV1, dV2, plot="subplot"):
     levels = np.linspace(0, 30, 20)
+    if not initial.name: initial.name = "Initial Body"
+    if not final.name: final.name = "Final Body"
 
-    ### Fig 1 dV1
-    plt.figure()
-    cp = plt.contour(initial.jd - initial.jd[0], final.jd - initial.jd[0], dV1, levels=levels)
-    plt.clabel(cp, inline=True, fontsize=10, fmt='%1.1f') # labels contours
-    plt.xlabel("Earth Departure date (June 20 - Sep 20 2005)")
-    plt.ylabel("Mars Arrival date (Dec 1 - June 19 2005/6)")
-    plt.title(r"$\Delta V$ Required Upon Departure [Day 0 = June 20]")
-    plt.colorbar()
-
-    ### Fig 1 label test
-    # ## Creates labels of days on axes, but is either too cluttered or looses data readability
-    # plt.figure()
-    # cp = plt.contour(initial.dates, final.dates, dV1, levels=levels)
-    # plt.clabel(cp, inline=True, fontsize=10, fmt='%1.1f') # labels contours
-    # plt.xlabel("Earth Departure date (June 20 - Sep 20 2005)")
-    # plt.ylabel("Mars Arrival date (Dec 1 - June 19 2005/6)")
-    # #plt.title(r"$\Delta V$ Required Upon Departure [Day 0 = June 20]")
-    # plt.colorbar()
-    # ## Ruins data readability but makes dates legible
-    # # Label X-axis with every 10th string from Edate (Makes us lose ability to hover over data)
-    # x_ticks = initial.jd[::10] - initial.jd[0]              # Numeric positions: 0, 10, 20...
-    # x_labels = initial.dates[::10]                  # String values at those positions
-    # plt.xticks(ticks=x_labels, labels=x_labels, rotation=45)
-    # # Label Y-axis with every 10th string from Mdate
-    # y_ticks = final.jd[::10] - initial.jd[0]             # Numeric positions: 0, 10, 20...
-    # y_labels = final.dates[::10]                  # String values at those positions
-    # plt.yticks(ticks=y_labels, labels=y_labels, rotation=45) 
-    # plt.tight_layout() # Ensures labels don't get cut off at bottom/sides
-
-    ### Fig 2 dV2
-    plt.figure()
-    cp = plt.contour(initial.jd - initial.jd[0], final.jd - initial.jd[0], dV2, levels=levels)
-    plt.clabel(cp, inline=True, fontsize=10, fmt='%1.1f') # labels contours
-    plt.xlabel("Earth Departure date (June 20 - Sep 20 2005)")
-    plt.ylabel("Mars Arrival date (Dec 1 - June 19 2005/6)")
-    plt.title(r"$\Delta V$ Required Upon Arrival [Day 0 = June 20]")
-    plt.colorbar()
-
-    ### Fig 3 total dV
+    # Find min dV and index for occurrence
     dV_tot = dV1 + dV2
-    min_dV = dV_tot.min()
-    plt.figure()
-    cp = plt.contour(initial.jd - initial.jd[0], final.jd - initial.jd[0], dV_tot, levels=levels)
-    plt.clabel(cp, inline=True, fontsize=10, fmt='%1.1f') # labels contours
-    plt.xlabel("Earth Departure date (June 20 - Sep 20 2005)")
-    plt.ylabel("Mars Arrival date (Dec 1 - June 19 2005/6)")
-    plt.title(r"Total $\Delta V$ Required [Day 0 = June 20]" + "\n" + r"Min $\Delta V$: " + f"{min_dV:.4f} km/s")
-    plt.colorbar()
+    j_min, i_min = np.unravel_index(np.nanargmin(dV_tot), dV_tot.shape)
+    min_dV = dV_tot[j_min, i_min]
+    departure_date = initial.date[i_min]
+    arrival_date = final.date[j_min]
+
+    datasets = [dV1, dV2, dV_tot]
+    titles = [
+        r"$\Delta V$ Upon Departure",
+        r"$\Delta V$ Upon Arrival",
+        r"Total $\Delta V$",
+    ]
+
+    # Sub plotter
+    if plot == "subplot":
+        fig, axes = plt.subplots(1, 3, figsize=(14, 4.5))
+        for ax, data, title in zip(axes, datasets, titles):
+            cp = ax.contour(initial.jd - initial.jd[0], final.jd - initial.jd[0], data, levels=levels)
+            ax.clabel(cp, inline=True, fontsize=8, fmt='%1.1f')
+            ax.set_xlabel(f"{initial.name} Departure date ({initial.date[0]} - {initial.date[-1]})")
+            ax.set_ylabel(f"{final.name} Arrival date ({final.date[0]} - {final.date[-1]})")
+            ax.set_title(title, fontsize=11)
+            fig.colorbar(cp, ax=ax, pad=0.02)
+        
+        fig.suptitle(
+            rf"{initial.name}$\to${final.name} Transfer $\Delta V$  [Day 0 = {initial.date[0]}]" f"\n" 
+            rf"Min Total $\Delta V$ = {min_dV:.4f} km/s    |    on {departure_date}$\to${arrival_date}    |    "
+            rf"TOF of {final.jd[j_min] - initial.jd[i_min]} days",fontsize=13)
+        plt.tight_layout(rect=[0, 0, 1, 0.93])  # leave room at top for suptitle
+    
+    # 3 Full plots
+    elif plot == "fullplot":
+        for data, title in zip(datasets, titles):
+            plt.figure()
+            cp = plt.contour(initial.jd - initial.jd[0], final.jd - initial.jd[0], data, levels=levels)
+            plt.clabel(cp, inline=True, fontsize=10, fmt='%1.1f') # labels contours
+            plt.xlabel(f"{initial.name} Departure date ({initial.date[0]} - {initial.date[-1]})")
+            plt.ylabel(f"{final.name} Arrival date ({final.date[0]} - {final.date[-1]})")
+            plt.title(rf"{title} [Day 0 = {initial.date[0]}]")
+            plt.colorbar()
+    
+    else:
+        raise ValueError(f"plot must be 'subplot' or 'fullplot', got {plot!r}")
 
     plt.show()

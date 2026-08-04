@@ -22,6 +22,7 @@ class Ephemeris:
     date: list
     pos: np.ndarray
     vel: np.ndarray
+    name: str = ""
 
 def parse_horizons_csv(filepath):
 # Input Filename/path horizons.csv and returns clean dataclass
@@ -31,7 +32,7 @@ def parse_horizons_csv(filepath):
     with open(filepath) as f:
         lines = f.readlines()[3:]
     jd = np.array([float(line.split(',')[0]) for line in lines])
-    date = [line.split(',')[1][1:17] for line in lines] # [1:17] Removes 00:00:00... from date
+    date = [line.split(',')[1][1:17].replace("A.D. ","") for line in lines] # [1:17] Removes 00:00:00... from date and "A.D. " specifically
     return Ephemeris(jd=np.array(jd), date=date, pos=np.array(pos), vel=np.array(vel))
 
 def parse_horizons_vectors(filepath):
@@ -46,6 +47,9 @@ def parse_horizons_vectors(filepath):
     with open(filepath, mode="r", encoding="utf-8") as file:
         started = False
         for line in file:
+            # Find name
+            if "Target body name" in line:
+                name = line.split(":")[1].split(" ")[1].strip()
             # Start at indicator
             if "$$SOE" in line:
                 started = True
@@ -76,9 +80,9 @@ def parse_horizons_vectors(filepath):
                     continue
                 # LT/RG/RR line intentionally not captured    
 
-    return Ephemeris(jd=np.array(jd), date=date, pos=np.array(pos), vel=np.array(vel))
+    return Ephemeris(jd=np.array(jd), date=date, pos=np.array(pos), vel=np.array(vel), name=name)
 
 
 if __name__ == '__main__':
-  print("\nutils.py is a library module. Run 'python3 test_utils.py' to test.\n" \
-    "Or call parse_horizons_csv(filepath) to return ephemeris data")
+  print("\nephem_io.py is a library module. Run 'python3 test_ephem_io.py' to test.\n" \
+    "Or call parse_horizons_csv(filepath) or parse_horizons_vectors(filepath) to return ephemeris data")
