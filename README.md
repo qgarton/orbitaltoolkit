@@ -4,7 +4,8 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ![Porkchop plot example](docs/images/Earth-Mars_dV_Total.png)
-*Earth–Mars total delta V contours*
+
+*Earth–Mars transfer Δv — darker contours require less Δv. Min: 6.80 km/s, Aug 19 2005 → Mar 21 2006 (214-day transfer)*
 
 **A Python library for orbital trajectory design — Lambert problem solving, numerical propagation, porkchop trade studies, and (in progress) attitude determination and proximity operations.**
 
@@ -43,15 +44,18 @@ This project provides tools that can be used to aid in trajectory design, includ
 Uses Lambert's Theorem to calculate transfer arc between 0 and 360 degrees, not including 180 or 360 degrees.
 
 ```python
-from orbitkit.lambert import lambert
+from orbitkit.lambert import lambert, norm
 
 # Earth → Mars transfer, departing 2022-01-01, arriving 2022-05-01
 earth_state = [1.39714e8, 5.24330e7, -2.69070e3, -10.96076, 27.77178,  -6.74710e-4]
 mars_state = [-1.021116e8, 3.32397e7, 6.34862e6, -11.00778, -33.46124, 0.17587]
-tof = (2459621.5 - 2459501.5) *24 *3600 # [seconds]
+time_of_flight = (2459621.5 - 2459501.5) *24 *3600 # [seconds]
 muSun = 1.32712428e11 #[km^3/s^2]
 
-(state1_transfer, state2_transfer, dv1_1, dv2_1, dv_total, _) = lambert(earth_state, mars_state, tof, muSun)
+(v1_transfer, v2_transfer, _) = lambert(earth_state[:3], mars_state[:3], time_of_flight, muSun)
+dv1_transfer = norm(v1_transfer - earth_state[3:])
+dv2_transfer = norm(mars_state[3:] - v2_transfer)
+dv_total = dv1_transfer + dv2_transfer
 
 print(f"Total delta-v: {dv_total:.3f} km/s")
 ```
@@ -97,14 +101,16 @@ mu_sun = 1.32712428e11  # [km^3/s^2]
 # Run this from the root directory /orbitaltoolkit/ 
 # Load Earth/Mars ephemeris over a departure/arrival window (see docs/examples/)
 earth_data = parse_horizons_csv("docs/examples/HW6_Ephem_Earth.txt")
+earth_data.name = "Earth"
 mars_data = parse_horizons_csv("docs/examples/HW6_Ephem_Mars.txt")
+mars_data.name = "Mars"
 
 dv1, dv2 = porkchop_grid_calculation(earth_data, mars_data, mu_sun, lambert)
 plot_porkchops(earth_data, mars_data, dv1, dv2)
 
 ```
 
-![Porkchop plot](docs/images/Earth-Mars_dV_Arrival.png)
+![Porkchop plot](docs/images/Earth-Mars_Subplots.png)
 
 
 ### Extended Kalman Filter *(planned)*
