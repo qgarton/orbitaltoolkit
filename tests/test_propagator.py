@@ -55,8 +55,8 @@ def test_propagator(use_plotly=False, use_pyplot=False):
     row_fmt = "{:<8} {:>12.4f} {:>8.4f} {:>12.6f} {:>8.4f}"
     print(header)
     for body in orbital_bodies:
-        pos_fin = orbital_bodies[body]['prop_pos'][:,-1]
-        vel_fin = orbital_bodies[body]['prop_vel'][:,-1]
+        pos_fin = orbital_bodies[body]['prop_pos'][-1,:]
+        vel_fin = orbital_bodies[body]['prop_vel'][-1,:]
         error_pos = np.linalg.norm(pos_fin - horizons_data[body].pos[-1])
         error_vel = np.linalg.norm(vel_fin - horizons_data[body].vel[-1])
         rel_error_pos = np.linalg.norm(pos_fin - horizons_data[body].pos[-1])/np.linalg.norm(pos_fin)*100
@@ -73,8 +73,8 @@ def test_propagator(use_plotly=False, use_pyplot=False):
     # Check error in final value with pytest
     if __name__ != '__main__':
         for body in orbital_bodies:
-            pos_fin = orbital_bodies[body]['prop_pos'][:,-1]
-            vel_fin = orbital_bodies[body]['prop_vel'][:,-1]
+            pos_fin = orbital_bodies[body]['prop_pos'][-1,:]
+            vel_fin = orbital_bodies[body]['prop_vel'][-1,:]
             rel_error_pos = np.linalg.norm(pos_fin - horizons_data[body].pos[-1])/np.linalg.norm(pos_fin)*100
             rel_error_vel = np.linalg.norm(vel_fin - horizons_data[body].vel[-1])/np.linalg.norm(vel_fin)*100
             # 2% error may be large, but Mercury and pluto are always loosing accuracy at no fault of the propagator

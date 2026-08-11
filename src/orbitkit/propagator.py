@@ -41,14 +41,14 @@ def propagate(orbital_bodies, tspan, t_eval=None, method='RK45', rtol=1e-9, atol
     )
     
     for i, body in enumerate(body_names):
-        orbital_bodies[body].update({'prop_pos' : sol.y[6*i:6*i+3, :]})     # Type/size: 'numpy.ndarray' (3,n_days+1)
-        orbital_bodies[body].update({'prop_vel' : sol.y[6*i+3:6*i+6, :]})   # Type/size: 'numpy.ndarray' (3,n_days+1)
+        orbital_bodies[body].update({'prop_pos' : sol.y[6*i:6*i+3, :].T})     # Type/size: 'numpy.ndarray' (n_days+1, 3)
+        orbital_bodies[body].update({'prop_vel' : sol.y[6*i+3:6*i+6, :].T})   # Type/size: 'numpy.ndarray' (n_days+1, 3)
 
     return orbital_bodies
     
 
 def EOM(t,y,masses):
-  # Calculate each 
+  # Calculate each body's acceleration due to the gravitational attraction of all other bodies
     n = len(masses)
     dydt = np.zeros(len(y))
     for i in range(n):

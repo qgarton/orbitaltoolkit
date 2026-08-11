@@ -6,15 +6,14 @@
 
 Use:
 plot_plotly(orbital_bodies, orbital_bodies_truth_comparison) 
-# orbital_bodies[body]['prop_pos'] contains simulated position data in shape (3,n)
+# orbital_bodies[body]['prop_pos'] contains simulated position data in shape (n,3)
 # orbital_bodies_truth_comparison[body].pos contains position data in shape  (n,3)
 """
 # Plots position overtime of 3D integrated orbital bodies next to horizons data for the same bodies
 
 
 def plot_plotly(orbital_bodies, orbital_bodies_truth_comparison=None, focus_body='Sun', zoom_radius=2.5e8, zoom_height=None, animate=False, frame_step=5):
-    """ Plots a 3D interactive graph in your browser. Can compare/plot a secondary set of data with (some of) the same orbital bodies
-    IMPORTANT: orbital_bodies[body]['prop_pos'] shape is (3,n) while orbital_bodies_truth_comparison.pos from parse_horizons_vectors() is shape (n,3)"""
+    """ Plots a 3D interactive graph in your browser. Can compare/plot a secondary set of data with (some of) the same orbital bodies"""
     import plotly.graph_objects as go
     
     fig = go.Figure()
@@ -22,12 +21,12 @@ def plot_plotly(orbital_bodies, orbital_bodies_truth_comparison=None, focus_body
     for body in orbital_bodies:
         pos = orbital_bodies[body]['prop_pos']
         fig.add_trace(go.Scatter3d(
-        x=pos[0], y=pos[1], z=pos[2],
+        x=pos[:,0], y=pos[:,1], z=pos[:,2],
         mode='lines',
         name=f'{body} path',
         ))
         fig.add_trace(go.Scatter3d(
-            x=[pos[0, -1]], y=[pos[1, -1]], z=[pos[2, -1]],   # just the last point, wrapped in a list
+            x=[pos[-1,0]], y=[pos[-1, 1]], z=[pos[-1, 2]],   # just the last point, wrapped in a list
             mode='markers',
             marker=dict(size=5),
             name=f'{body} final',
@@ -45,7 +44,7 @@ def plot_plotly(orbital_bodies, orbital_bodies_truth_comparison=None, focus_body
             ))
     
     ### Make graph start out centered on the Sun
-    focus_body_final = orbital_bodies[focus_body]['prop_pos'][:, -1]
+    focus_body_final = orbital_bodies[focus_body]['prop_pos'][-1,:]
     if not zoom_height:
         zoom_height=zoom_radius
     fig.update_layout(scene=dict(
@@ -68,11 +67,11 @@ def plot_plotly(orbital_bodies, orbital_bodies_truth_comparison=None, focus_body
             for body in orbital_bodies:
                 pos = orbital_bodies[body]['prop_pos']
                 frame_data.append(go.Scatter3d(
-                    x=pos[0, :idx + 1], y=pos[1, :idx + 1], z=pos[2, :idx + 1],
+                    x=pos[:idx+1, 0], y=pos[:idx+1, 1], z=pos[:idx+1, 2],
                     mode='lines',
                 ))
                 frame_data.append(go.Scatter3d(
-                    x=[pos[0, idx]], y=[pos[1, idx]], z=[pos[2, idx]],
+                    x=[pos[idx, 0]], y=[pos[idx, 1]], z=[pos[idx, 2]],
                     mode='markers', marker=dict(size=5),
                 ))
                 if orbital_bodies_truth_comparison is not None:
@@ -107,7 +106,7 @@ def plot_pyplot(orbital_bodies):
 
     for body in orbital_bodies:
         pos = orbital_bodies[body]['prop_pos']   # shape (3, n_times)
-        ax.plot(pos[0], pos[1], pos[2], label=body)
+        ax.plot(pos[:,0], pos[:,1], pos[:,2], label=body)
 
     ax.set_xlabel('X (km)')
     ax.set_ylabel('Y (km)')

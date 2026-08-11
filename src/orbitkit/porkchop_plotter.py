@@ -4,6 +4,10 @@
 # Last updated: 7/9/2026
 
 # Creates a porkchop plot for a given set of initial and final states, time of flight, and gravitational parameter
+# Initial and final states are expected to be in the form of a class with attributes pos, vel, jd, and date. 
+# The pos and vel attributes should be numpy arrays of shape (N, 3), where N is the number of time steps. 
+# The jd attribute should be a numpy array of shape (N,) containing the Julian dates corresponding to the time steps. 
+# The date attribute should be a list of strings containing the formatted dates corresponding to the time steps.
 
 import numpy as np
 import time
