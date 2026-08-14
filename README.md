@@ -173,7 +173,7 @@ both numerical and branch-selection errors:
   long-way (>180°) transfer angle cases, including a zero-maneuver 
   edge case for catching branch-selection bugs
 
-Porkchop grid calculations were checked by hand against ASEN 5050 (CU Boulder) 
+Porkchop grid calculations were checked against ASEN 5050 (CU Boulder) 
 coursework, with a one-off manual comparison against GMAT-generated 
 trajectories; an automated synthetic-data regression test is in progress.
 
@@ -192,6 +192,7 @@ pytest
 ## Known Limitations
 
 - Lambert solver does not currently handle transfer angles at or near 180° (singular geometry case) — trajectories requiring near-180° transfers will fail or return invalid results
+  - Can create new Lambert solver using a different method which can handle those cases. Has the potential to also handle parabolic/hyperbolic transfers, and/or multirevolution tranfers
 
 - Porkchop plotter inherits the same 180°-transfer limitation as the Lambert solver — grid points near this transfer angle will be missing or invalid; fixable by implementing an alternate Lambert formulation for that regime
 
@@ -200,13 +201,16 @@ pytest
 ---
 
 ## Roadmap
-
-- [x] Lambert's problem solver
+- [x] Lambert's problem solver (Lambert's Theorem)
 - [x] Numerical trajectory propagator
 - [x] Porkchop plot / delta-v trade study generator
 - [ ] Extended Kalman Filter (orbit determination)
 - [ ] Attitude determination
 - [ ] Proximity operations / relative motion modeling
+
+### Nice to Haves
+- [ ] Lambert's problem solver (Universal Variable, Izzo's, or Battin's)
+- [ ] Symplectic integrator to conserve energy/angular momentum (rebound, leapfrog/verlet)
 - [ ] Interactive Streamlit demo
 
 ---
