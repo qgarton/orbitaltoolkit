@@ -82,6 +82,19 @@ def parse_horizons_vectors(filepath):
 
     return Ephemeris(jd=np.array(jd), date=date, pos=np.array(pos), vel=np.array(vel), name=name)
 
+def create_ephemeris_from_pos_vel(pos, vel, name="", jd=None, start_jd=0, step_size=1, start_date=""):
+    # Create an Ephemeris dataclass from position and velocity arrays
+    # pos and vel should be numpy arrays of shape (N, 3)
+    # name is name of body
+    # jd can be a list of julian dates corresponding to the position and velocity arrays (optional)
+    # start_jd is the starting Julian date if jd is desired to be generated (optional)
+    # step_size is the time step in days of generated jd values (optional)
+    # start_date is a string representing the starting date (optional) [not yet functional]
+    N = pos.shape[0]
+    if jd is None:
+        jd = np.array([start_jd + i * step_size for i in range(N)])
+    date = [f"day {int(d)}" for d in jd]
+    return Ephemeris(jd=jd, date=date, pos=pos, vel=vel, name=name)
 
 if __name__ == '__main__':
   print("\nephem_io.py is a library module. Run 'python3 test_ephem_io.py' to test.\n" \

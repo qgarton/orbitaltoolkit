@@ -73,7 +73,28 @@ def test_parse_horizons_vectors():
     np.testing.assert_allclose(earth_sample.vel, expected_vel, atol=1e-2)
     assert earth_sample.name == expected_name
 
+def test_create_ephemeris_from_pos_vel():
+    # Tests creation of Ephemeris dataclass from position and velocity arrays
+    pos = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    vel = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.7, 0.8, 0.9]])
+    name = "Test Body"
+    start_jd = 2451545.0
+    step_size = 1.0
+    start_date = "2000-Jan-01"
+
+    ephem = create_ephemeris_from_pos_vel(pos, vel, name=name, start_jd=start_jd, step_size=step_size, start_date=start_date)
+
+    expected_jd = np.array([2451545.0, 2451546.0, 2451547.0])
+    expected_date = ["2000-Jan-01", "2000-Jan-01", "2000-Jan-01"]
+
+    np.testing.assert_allclose(ephem.jd, expected_jd)
+    assert ephem.date == expected_date
+    np.testing.assert_allclose(ephem.pos, pos)
+    np.testing.assert_allclose(ephem.vel, vel)
+    assert ephem.name == name
+
 
 if __name__ == '__main__': 
     test_parse_horizons_csv()
     test_parse_horizons_vectors()
+    test_create_ephemeris_from_pos_vel()
