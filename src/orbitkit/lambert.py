@@ -18,6 +18,21 @@ from scipy.optimize import fsolve
 def norm(vec):
     return np.linalg.norm(vec)
 
+def transfer_angle(r1, r2, prograde=True):
+    """Calculates the transfer angle in radians between two position vectors r1 and r2."""
+    R1 = np.linalg.norm(r1)
+    R2 = np.linalg.norm(r2)
+    ratio = np.clip(np.dot(r1, r2) / (R1 * R2), -1, 1) # Clip to valid range in case of numerical errors (e.g., due to floating-point precision)
+    dtheta = np.arccos(ratio)
+    cross_z = np.cross(r1, r2)[2] # z-hat cross product value to determine direction
+    if prograde: 
+        if cross_z < 0: # [rad] if the cross product of the two position vectors is negative, the transfer angle is greater than 180 degrees
+            dtheta = 2*np.pi - dtheta
+    else:
+        if cross_z >= 0:
+            dtheta = 2*np.pi - dtheta
+    return dtheta
+
 def lambertEq(TOF, c, s, mu, dtheta):
     ## Calculates the semi-major axis of the transfer orbit given the time of flight, 
     # chord length, semi-perimeter, gravitational parameter, and change in true anomaly
@@ -62,13 +77,8 @@ def lambert(r1, r2, TOF, mu):
     r2 = np.array(r2)
     R1 = np.linalg.norm(r1) # [km] magnitude of initial position vector
     R2 = np.linalg.norm(r2) # [km] magnitude of final position vector
-    
-    ratio = np.dot(r1, r2) / (R1 * R2)
-    ratio = np.clip(ratio, -1.0, 1.0)  # Clamp to valid range in case of numerical errors (e.g., due to floating-point precision)
-    dtheta = np.arccos(ratio) # [rad] change in true anomaly
-        
-    if np.cross(r1, r2)[2] < 0: # [rad] if the cross product of the two position vectors is negative, the transfer angle is greater than 180 degrees
-        dtheta = 2 * np.pi - dtheta
+
+    dtheta = transfer_angle(r1, r2, prograde=True) # [rad] change in true anomaly
 
     c = np.sqrt(R1**2 + R2**2 - 2 * R1 * R2 * np.cos(dtheta)) # [km] chord length between initial and final position vectors
     s = (R1 + R2 + c) / 2 # [km] semi-perimeter of the triangle formed by the initial and final position vectors and the chord length
