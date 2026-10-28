@@ -8,18 +8,17 @@
 
 G = 6.67408e-11 * 1e-9  # [km^3/(kg*s^2)] Gravitational constant converted from m^3 by 1e-9
 AU = 149.6e6 # [km in 1 AU]
+muSun = 1.9891e30*G # [km^3/s^2] Gravitational parameter of the Sun, mu = G*M
 
 def planet_params():
     ### Celestial Body Initialization
-    ## Assume:
-    # All planetary orbits are circular (For SOI calc)
 
     ## Units:
     # mass [kg], photosphere radius [km], distance from sun [km], SOI [km]
 
     def make_body(name, mass, radius, orbited_body, pos, vel):
-        """ Returns a Dict with name, mass, mean equatorial radius, distance from orbited body, mu, 
-        and default pos/vel vectors from 2026-Jan-01
+        """ Returns a Dict with name, mass, mean equatorial radius, name of orbited body, 
+        gravitational parameter mu, and default pos/vel vectors from 2026-Jan-01
         Input name as str, mass in kg, radius in km, pos in km, and vel in km/s"""
         mu = G * mass
         return {'name': name, 'mass': mass, 'radius': radius, 
