@@ -7,7 +7,7 @@
 
 *Earth–Mars transfer Δv — darker contours require less Δv. Min: 6.80 km/s, Aug 19 2005 → Mar 21 2006 (214-day transfer)*
 
-**A Python library for orbital trajectory design — Lambert problem solving, numerical propagation, porkchop trade studies, and (in progress) attitude determination and proximity operations.**
+**A Python library for orbital trajectory design — Lambert problem solving, numerical propagation, porkchop trade studies, with (planned) orbit determination, Kalman filtering, proximity operations, and attitude determination.**
 
 ---
 
@@ -26,14 +26,15 @@
 
 ## What this does
 
-This project provides tools that can be used to aid in trajectory design, including a Lambert's problem solver paired with a porkchop plotter, and a numerical integrator to verify and visualize solutions. There will eventually be tools included to handle attitude dynamics and proximity operations.
+This project provides tools that can be used to aid in trajectory design, including a Lambert's problem solver paired with a porkchop plotter, and a numerical integrator to verify and visualize solutions. There will eventually be tools included to handle orbit determination with Kalman Filtering, attitude determination and proximity operations.
 
 - **Lambert's problem solver** — computes the transfer orbit (and required velocity) connecting two position vectors in a given time of flight using Lambert's Theorem
 - **Porkchop plot generator** — sweeps departure/arrival date combinations to visualize delta-v cost and identify optimal launch windows
 - **Numerical orbit propagator** — integrates basic gravitational equations of motion to plot spacecraft trajectories over time
-- **Extended Kalman Filter** *(planned)* — fuses measurement data with the propagator's dynamics model to estimate true position/velocity (orbit determination); designed to be reusable for attitude estimation later
-- **Attitude determination** *(planned)* — estimates spacecraft orientation from sensor data (will build on the EKF above)
+- **Orbit Determination (Batch Least Squares)** *(planned)* — estimates a spacecraft’s initial position and velocity from simulated tracking measurements, such as range and range-rate, by iteratively fitting the propagator’s predicted measurements to the data
+- **Extended Kalman Filter** *(planned)* — fuses measurement data with the propagator's dynamics model to estimate true position/velocity (sequential orbit determination); designed to be reusable for attitude estimation later
 - **Proximity operations** *(planned)* — relative motion modeling for rendezvous and docking scenarios
+- **Attitude determination** *(planned)* — estimates spacecraft orientation from sensor data (will build on the EKF above)
 
 ---
 
@@ -60,7 +61,6 @@ dv_total = dv1_transfer + dv2_transfer
 print(f"Total delta-v: {dv_total:.3f} km/s")
 ```
 
-![Lambert transfer example](docs/images/lambert_transfer.png)
 
 
 ### Trajectory Propagation
@@ -112,20 +112,21 @@ plot_porkchops(earth_data, mars_data, dv1, dv2)
 
 ![Porkchop plot](docs/images/Earth-Mars_Subplots.png)
 
+### Orbit Determination (Batch Least Squares) *(planned)*
+
+Simulates tracking measurements, starting with range and range-rate from a tracking station, for a spacecraft propagated with the toolkit’s dynamics model, adds measurement noise, and uses batch least squares to recover the spacecraft’s initial position and velocity (6 states). Results will be compared against the known truth trajectory.
 
 ### Extended Kalman Filter *(planned)*
 
-Brief description once implemented.
-
-
-### Attitude Determination *(planned)*
-
-Brief description once implemented (e.g. TRIAD, QUEST, or Kalman filter approach).
-
+Sequentially estimates the same 6-element position and velocity state, using the point-mass propagator as the dynamics model and the same simulated measurements as the batch estimator, so the two methods can be compared on identical data. Designed to be reusable for attitude estimation later.
 
 ### Proximity Operations *(planned)*
 
-Brief description of intended scope (e.g. relative motion in Hill/Clohessy-Wiltshire frame, docking approach trajectories).
+Relative motion modeling between a chaser and a target spacecraft, starting with the Clohessy–Wiltshire equations in a Hill frame. Maneuver and station-keeping capability may follow.
+
+### Attitude Determination *(planned)*
+
+Estimates spacecraft orientation from sensor data. Candidate approaches include TRIAD, QUEST, and Kalman filtering; the method has not yet been selected.
 
 ---
 
@@ -192,7 +193,7 @@ pytest
 ## Known Limitations
 
 - Lambert solver does not currently handle transfer angles at or near 180° (singular geometry case) — trajectories requiring near-180° transfers will fail or return invalid results
-  - Can create new Lambert solver using a different method which can handle those cases. Has the potential to also handle parabolic/hyperbolic transfers, and/or multirevolution tranfers
+  - Can create new Lambert solver using a different method which can handle those cases. Has the potential to also handle parabolic/hyperbolic transfers, and/or multirevolution transfers
 
 - Porkchop plotter inherits the same 180°-transfer limitation as the Lambert solver — grid points near this transfer angle will be missing or invalid; fixable by implementing an alternate Lambert formulation for that regime
 
@@ -204,9 +205,10 @@ pytest
 - [x] Lambert's problem solver (Lambert's Theorem)
 - [x] Numerical trajectory propagator
 - [x] Porkchop plot / delta-v trade study generator
-- [ ] Extended Kalman Filter (orbit determination)
-- [ ] Attitude determination
+- [ ] Orbit Determination (batch least squares)
+- [ ] Extended Kalman Filter (sequential orbit determination)
 - [ ] Proximity operations / relative motion modeling
+- [ ] Attitude determination
 
 ### Nice to Haves
 - [ ] Lambert's problem solver (Universal Variable, Izzo's, or Battin's)
