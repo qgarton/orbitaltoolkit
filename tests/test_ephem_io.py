@@ -9,7 +9,7 @@
 # test_parse_horizons_csv()
 # test_parse_horizons_vectors()
 from pathlib import Path
-from orbitkit.ephem_io import parse_horizons_csv, parse_horizons_vectors
+from orbitkit.ephem_io import parse_horizons_csv, parse_horizons_vectors, create_ephemeris_from_pos_vel
 import numpy as np
 
 def test_parse_horizons_csv():
@@ -85,7 +85,7 @@ def test_create_ephemeris_from_pos_vel():
     ephem = create_ephemeris_from_pos_vel(pos, vel, name=name, start_jd=start_jd, step_size=step_size, start_date=start_date)
 
     expected_jd = np.array([2451545.0, 2451546.0, 2451547.0])
-    expected_date = ["2000-Jan-01", "2000-Jan-01", "2000-Jan-01"]
+    expected_date = ['day 2451545', 'day 2451546', 'day 2451547']
 
     np.testing.assert_allclose(ephem.jd, expected_jd)
     assert ephem.date == expected_date
